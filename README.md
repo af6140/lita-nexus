@@ -10,6 +10,8 @@ Add lita-nexus to your Lita instance's Gemfile:
 gem "lita-nexus"
 ```
 
+Encrypted password can be generated use example rsa_encrypt script
+
 ## Configuration
 ```ruby
 Lita.configure do |config|
