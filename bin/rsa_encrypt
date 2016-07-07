@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+require 'io/console'
+require 'openssl'
+require 'base64'
+
+def get_key filepath
+      OpenSSL::PKey::RSA.new File.read(filepath)
+end
+
+private_key_file = "#{ENV['HOME']}/.ssh/id_rsa";
+puts "using private key file : #{private_key_file}"
+private_key = get_key private_key_file
+puts "acquiring public key from public key"
+public_key = private_key.public_key
+require 'io/console'
+print "Password: "
+password=STDIN.noecho(&:gets).chomp
+encrypted_string = Base64.encode64(public_key.public_encrypt(password))
+puts "encrypted password: \n#{encrypted_string}"
