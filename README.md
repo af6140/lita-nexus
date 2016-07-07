@@ -1,6 +1,6 @@
 # lita-nexus
 
-TODO: Add a description of the plugin.
+Lita handlers to query nexus server for artifact and repository
 
 ## Installation
 
@@ -11,9 +11,28 @@ gem "lita-nexus"
 ```
 
 ## Configuration
-
-TODO: Describe any configuration attributes the plugin exposes.
+```ruby
+Lita.configure do |config|
+  config.handlers.nexus.url = 'https://nexus.prod.co.entpub.net/nexus/'
+  config.handlers.nexus.username = 'dwang_sa'
+  #encrypted use rsa_public_key
+  config.handlers.nexus.password_hash =
+   'Zrt3Hwo7Er4nu9Ne4r0Y6ykuxwxlmvKTrEN26G7EYw63Wtnt9K4H9e933NEZ
+    eaqUhjoXKYCylhZNWsSj/KDnrEflCCr4eHkFq3kwNi9fRraI3kWVoBzg0v2E
+    jn5sVCVgrIKG3W8p+RGKbm+HEnkNSZRKJumqJy3vtPcbgMdSlWZQPpwNP4X2
+    c4NnOUNVY3nmEijX1FJkGnfL3pcZlJgx60lLhhLbGnKQkLz5LdeFRbiiXaVw
+    acFQufgrhNN85AsKaUlDp/n8ISuMB1K1nGVdN2ZYByf1aKVYwnIWdj+omffz
+    Da2gZuDpdDWvNfYsm7o3JV6BcmsS9YgiaeiBNi0l1Q=='
+  config.handlers.nexus.verify_ssl = false
+  config.handlers.nexus.default_repository = 'entertainment'
+  #used to decrypt password hash
+  config.handlers.nexus.rsa_private_key = "#{File.expand_path('~')}/.ssh/id_rsa"
+end
+```
 
 ## Usage
 
-TODO: Describe the plugin's features and how to use them.
+* nexus artifact info webapps:sweetrewards:tar.gz:1.8.0
+* nexus search artifact webapps:sweetrewards
+* nexus license info # only for pro version
+* nexus repo info snapshots
