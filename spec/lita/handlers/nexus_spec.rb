@@ -18,6 +18,7 @@ describe Lita::Handlers::Nexus, lita_handler: true do
   it do
     is_expected.to route_command('nexus artifact info webapps:sweetrewards:tar.gz:1.8.0').to(:cmd_artifact_info)
     is_expected.to route_command('nexus license info').to(:cmd_license_info)
+    is_expected.to route_command('nexus repo info test').to(:cmd_repo_info)
   end
 
   describe '#get artifact info' do
@@ -37,6 +38,18 @@ describe Lita::Handlers::Nexus, lita_handler: true do
   describe '#get license info' do
     it 'fecth server license info' do
       send_command('nexus license info')
+      puts replies
+    end
+  end
+
+  describe '#get repo info' do
+    it 'fecth repository info' do
+      send_command('nexus repo info snapshots')
+      puts replies
+
+    end
+    it 'show repository not found' do
+      send_command('nexus repo info notexist')
       puts replies
     end
   end

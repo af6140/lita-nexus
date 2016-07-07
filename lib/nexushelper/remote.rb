@@ -30,7 +30,7 @@ module LitaNexusHelper
       rescue NexusCli::ArtifactNotFoundException => e
         info = "Artifact not found"
       end
-      puts "info: #{info}"
+      #puts "info: #{info}"
       info
     end
 
@@ -46,6 +46,18 @@ module LitaNexusHelper
       else
         'Only supported on professional version.'
       end
+    end
+
+    def get_repository_info(coordinate)
+      remote = nexus_remote
+      info = nil
+      begin
+        info = remote.get_repository_info(coordinate)
+      rescue NexusCli::RepositoryNotFoundException => e
+        info = "Repository not found"
+      end
+      #puts "info: #{info}"
+      info
     end
   end#module Remote
 end #module helper

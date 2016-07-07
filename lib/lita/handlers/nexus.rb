@@ -11,7 +11,9 @@ module Lita
       config :default_repository, required: false, type: String
       config :verify_ssl, required: false, type: [TrueClass,FalseClass], default: false
       config :rsa_private_key, required: true, type: String
+
       include ::LitaNexusHelper::Remote
+
       route(
         /^nexus\s+artifact\s+info\s+(\S+)\s*$/,
         :cmd_artifact_info,
@@ -38,6 +40,16 @@ module Lita
           t('help.cmd_license_info_key') => t('help.cmd_license_info_value')
         }
       )
+
+      route(
+        /^nexus\s+repo\s+info\s+(\S+)\s*$/,
+        :cmd_repo_info,
+        command: true,
+        help: {
+          t('help.cmd_repo_info_key') => t('help.cmd_repo_info_value')
+        }
+      )
+
       def cmd_artifact_info(response)
         coordinate = response.matches[0][0]
         puts "coordinate  = #{coordinate}"
@@ -56,6 +68,13 @@ module Lita
         info = get_license_info
         response.reply info
       end
+
+      def cmd_repo_info(response)
+        repo_name = response.matches[0][0]
+        info = get_repository_info repo_name
+        response.reply info
+      end
+
       Lita.register_handler(self)
     end
   end
