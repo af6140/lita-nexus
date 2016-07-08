@@ -3,11 +3,11 @@ en:
     handlers:
       nexus:
         help:
-          cmd_artifact_info_key: 'nexus artifact info COORDICNATE'
+          cmd_artifact_info_key: 'nexus artifact info COORDINATE'
           cmd_artifact_info_value: 'Show artifact info with coordinate'
           cmd_license_info_key: 'nexus license info'
           cmd_license_info_value: 'Show license info'
-          cmd_search_artifact_key: 'nexus search artifact COORDICNATE'
+          cmd_search_artifact_key: 'nexus search artifact COORDINATE'
           cmd_search_artifact_value: 'Search all versions artifact with coordinate'
           cmd_repo_info_key: 'nexus repo info REPONAME'
           cmd_repo_info_value: 'Show repository REPONAME info'
