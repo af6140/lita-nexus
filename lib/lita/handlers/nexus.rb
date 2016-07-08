@@ -11,6 +11,7 @@ module Lita
       config :default_repository, required: false, type: String
       config :verify_ssl, required: false, type: [TrueClass,FalseClass], default: false
       config :rsa_private_key, required: true, type: String
+      config :current_repository, required: false, type: String
 
       include ::LitaNexusHelper::Remote
 
@@ -50,6 +51,34 @@ module Lita
         }
       )
 
+      route(
+        /^nexus\s+delete\s+artifact\s+(\S+)\s*$/,
+        :cmd_delete_artifact,
+        command: true,
+        help: {
+          t('help.cmd_delete_artifact_key') => t('help.cmd_delete_artifact_value')
+        }
+      )
+
+      route(
+        /^nexus\s+show\s+current\s+repo\s*$/,
+        :cmd_show_current_repository,
+        command: true,
+        help: {
+          t('help.cmd_show_repo_key') => t('help.cmd_show_repo_value')
+        }
+      )
+
+      route(
+        /^nexus\s+set\s+current\s+repo\s+(\S+)\s*$/,
+        :cmd_set_current_repository,
+        command: true,
+        help: {
+          t('help.cmd_set_repo_key') => t('help.cmd_set_repo_value')
+        }
+      )
+
+
       def cmd_artifact_info(response)
         coordinate = response.matches[0][0]
         puts "coordinate  = #{coordinate}"
@@ -73,6 +102,30 @@ module Lita
         repo_name = response.matches[0][0]
         info = get_repository_info repo_name
         response.reply info
+      end
+
+      def cmd_delete_artifact(response)
+        coordinate = response.matches[0][0]
+        begin
+          delete_artifact(coordinate)
+          response.reply "Artifact deleted successfully."
+        rescue Exception => e
+          response.reply e.message
+        end
+      end
+
+      def cmd_set_current_repository(response)
+        repo = response.matches[0][0]
+        if repo && repo.strip.length >0
+          config.current_repository = repo
+        end
+        response.reply "Current repository is changed to #{repo}."
+      end
+
+      def cmd_show_current_repository(response)
+        current_repo = get_current_repo
+        response.reply "Current repository is #{current_repo}"
+
       end
 
       Lita.register_handler(self)

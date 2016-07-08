@@ -35,6 +35,9 @@ end
 ## Usage
 
 * nexus artifact info webapps:sweetrewards:tar.gz:1.8.0
+* nexus delete artifact webapps:sweetrewards:tar.gz:1.8.0
 * nexus search artifact webapps:sweetrewards
 * nexus license info # only for pro version
 * nexus repo info snapshots
+* nexus show current repo
+* nexus set current repo releases

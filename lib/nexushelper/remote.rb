@@ -11,7 +11,7 @@ module LitaNexusHelper
         decrypted_pass = pk.private_decrypt Base64::decode64(config.password_hash)
         overrides = {
           :url => config.url,
-          :repository => config.default_repository,
+          :repository => get_current_repo,
           :username => config.username,
           :password => decrypted_pass
         }
@@ -58,6 +58,15 @@ module LitaNexusHelper
       end
       #puts "info: #{info}"
       info
+    end
+
+    def delete_artifact(coordinate)
+      remote = nexus_remote
+      remote.delete_artifact(coordinate)
+    end
+
+    def get_current_repo
+      config.current_repository || config.default_repository
     end
   end#module Remote
 end #module helper

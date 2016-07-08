@@ -19,6 +19,9 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     is_expected.to route_command('nexus artifact info webapps:sweetrewards:tar.gz:1.8.0').to(:cmd_artifact_info)
     is_expected.to route_command('nexus license info').to(:cmd_license_info)
     is_expected.to route_command('nexus repo info test').to(:cmd_repo_info)
+    is_expected.to route_command('nexus delete artifact webapps:sweetrewards:tar.gz:1.8.0').to(:cmd_delete_artifact)
+    is_expected.to route_command('nexus show current repo').to(:cmd_show_current_repository)
+    is_expected.to route_command('nexus set current repo releases').to(:cmd_set_current_repository)
   end
 
   describe '#get artifact info' do
@@ -50,6 +53,24 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     end
     it 'show repository not found' do
       send_command('nexus repo info notexist')
+      puts replies
+    end
+  end
+
+  describe '#show and set current repo' do
+    it 'get current repo' do
+      send_command('nexus show current repo')
+      puts "Getting current repo"
+      puts replies
+    end
+    it 'set current repo ' do
+      send_command('nexus set current repo releases')
+      puts "Setting current repo"
+      puts replies
+    end
+    it 'get current repo' do
+      send_command('nexus show current repo')
+      puts "Getting current repo, changed"
       puts replies
     end
   end
