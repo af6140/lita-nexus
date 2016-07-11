@@ -6,9 +6,14 @@ module LitaNexusHelper
   module Remote
     def nexus_remote
       begin
-        pk_path = config.rsa_private_key
-        pk = OpenSSL::PKey::RSA.new File.read(pk_path)
-        decrypted_pass = pk.private_decrypt Base64::decode64(config.password_hash)
+        if config.password_plain.nil? || config.password_plain.length <1
+          pk_path = config.rsa_private_key
+          pk = OpenSSL::PKey::RSA.new File.read(pk_path)
+          decrypted_pass = pk.private_decrypt Base64::decode64(config.password_hash)
+        else
+          decrypted_pass = config.password_plain
+        end
+
         overrides = {
           :url => config.url,
           :repository => get_current_repo,

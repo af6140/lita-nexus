@@ -15,16 +15,17 @@ Encrypted password can be generated use example rsa_encrypt script
 ## Configuration
 ```ruby
 Lita.configure do |config|
-  config.handlers.nexus.url = 'https://nexus.prod.co.entpub.net/nexus/'
-  config.handlers.nexus.username = 'dwang_sa'
+  config.handlers.nexus.url = "http://localhost:8081/"
+  config.handlers.nexus.username = 'admin'
   #encrypted use rsa_public_key
-  config.handlers.nexus.password_hash =
-   'Zrt3Hwo7Er4nu9Ne4r0Y6ykuxwxlmvKTrEN26G7EYw63Wtnt9K4H9e933NEZ
-    eaqUhjoXKYCylhZNWsSj/KDnrEflCCr4eHkFq3kwNi9fRraI3kWVoBzg0v2E
-    jn5sVCVgrIKG3W8p+RGKbm+HEnkNSZRKJumqJy3vtPcbgMdSlWZQPpwNP4X2
-    c4NnOUNVY3nmEijX1FJkGnfL3pcZlJgx60lLhhLbGnKQkLz5LdeFRbiiXaVw
-    acFQufgrhNN85AsKaUlDp/n8ISuMB1K1nGVdN2ZYByf1aKVYwnIWdj+omffz
-    Da2gZuDpdDWvNfYsm7o3JV6BcmsS9YgiaeiBNi0l1Q=='
+  # config.handlers.nexus.password_hash =
+  #  'Zrt3Hwo7Er4nu9Ne4r0Y6ykuxwxlmvKTrEN26G7EYw63Wtnt9K4H9e933NEZ
+  #   eaqUhjoXKYCylhZNWsSj/KDnrEflCCr4eHkFq3kwNi9fRraI3kWVoBzg0v2E
+  #   jn5sVCVgrIKG3W8p+RGKbm+HEnkNSZRKJumqJy3vtPcbgMdSlWZQPpwNP4X2
+  #   c4NnOUNVY3nmEijX1FJkGnfL3pcZlJgx60lLhhLbGnKQkLz5LdeFRbiiXaVw
+  #   acFQufgrhNN85AsKaUlDp/n8ISuMB1K1nGVdN2ZYByf1aKVYwnIWdj+omffz
+  #   Da2gZuDpdDWvNfYsm7o3JV6BcmsS9YgiaeiBNi0l1Q=='
+  config.handlers.nexus.password_plain = 'admin123'
   config.handlers.nexus.verify_ssl = false
   config.handlers.nexus.default_repository = 'entertainment'
   #used to decrypt password hash

@@ -7,11 +7,14 @@ module Lita
       # insert handler code here
       config :url, required: true, type: String
       config :username, required: true, type: String
-      config :password_hash, required: true, type: String
+      #use either plain password or encrypted one
+      config :password_hash, required: false, type: String
+      config :password_plain, required: false, type: String
       config :default_repository, required: false, type: String
       config :verify_ssl, required: false, type: [TrueClass,FalseClass], default: false
       config :rsa_private_key, required: true, type: String
       config :current_repository, required: false, type: String
+
 
       include ::LitaNexusHelper::Remote
 

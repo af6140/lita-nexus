@@ -1,4 +1,7 @@
 # Change Log
+## 0.1.3
+* Allow use plain password.
+* Use docker container for testing.
 
 ## 0.1.2
 * Allow to change/show current working repository

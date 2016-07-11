@@ -50,13 +50,14 @@ describe Lita::Handlers::Nexus, lita_handler: true do
   before do
     registry.config.handlers.nexus.url = 'http://localhost:8081/'
     registry.config.handlers.nexus.username = 'admin'
-    registry.config.handlers.nexus.password_hash =
-     'C3Enajd6ygmzot1CB8H7FdYb7oLOpOr+fZMisp4HDfb8l1YDaNRxUhCYKxYq
-      ma3qv6fxmU3wkPLfcN1c/u164jgGVPPl4mi8PtZxbN2uAh0hm/sIqTAoFczy
-      6lctLPNNYb3eK+4lH/XvOHeS1L+uSwPIiQNub//IsE7MeWz3gW6AXr0I5sUt
-      k81o63GwYqdT0VS4PpJqfl2zq8LHd6s0SFUfZv02HvW0TvwNxmjiWnsRYLcs
-      aU9B+umfH9rCqNXNqDaAgEDXBTbMkqTjwQvRi0qMouQmITPC7dnC2lYsC/Ka
-      HXpfWKIFjbVtf5Tslfj1l5/9mW7PTtwyeXc7z50iUA=='
+    # registry.config.handlers.nexus.password_hash =
+    #  'C3Enajd6ygmzot1CB8H7FdYb7oLOpOr+fZMisp4HDfb8l1YDaNRxUhCYKxYq
+    #   ma3qv6fxmU3wkPLfcN1c/u164jgGVPPl4mi8PtZxbN2uAh0hm/sIqTAoFczy
+    #   6lctLPNNYb3eK+4lH/XvOHeS1L+uSwPIiQNub//IsE7MeWz3gW6AXr0I5sUt
+    #   k81o63GwYqdT0VS4PpJqfl2zq8LHd6s0SFUfZv02HvW0TvwNxmjiWnsRYLcs
+    #   aU9B+umfH9rCqNXNqDaAgEDXBTbMkqTjwQvRi0qMouQmITPC7dnC2lYsC/Ka
+    #   HXpfWKIFjbVtf5Tslfj1l5/9mW7PTtwyeXc7z50iUA=='
+    registry.config.handlers.nexus.password_plain='admin123'
     registry.config.handlers.nexus.verify_ssl = false
     registry.config.handlers.nexus.default_repository = 'releases'
     registry.config.handlers.nexus.rsa_private_key = "#{File.expand_path('~')}/.ssh/id_rsa"
