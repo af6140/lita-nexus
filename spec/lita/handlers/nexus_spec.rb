@@ -1,18 +1,64 @@
 require "spec_helper"
+require 'docker'
 
 describe Lita::Handlers::Nexus, lita_handler: true do
+
+  before :all do
+    @image = Docker::Image.create('fromImage' => 'sonatype/nexus:oss')
+
+
+    #
+    @container_data =  Docker::Container.create( 'Image' => 'sonatype/nexus:oss',
+      'Cmd' => "true"
+    )
+    @container_data.rename('lita_nexus_data')
+    @container_data.start
+
+    sleep 5
+
+      #check docker image documentation
+    default_settings =[
+      'MAX_HEAP=768m'
+    ]
+    @container_nexus = Docker::Container.create( 'Image' => 'sonatype/nexus:oss',
+      'Env'=> default_settings,
+      'ExposedPorts' => {
+        '8081/tcp' => {}
+      },
+      'HostConfig' => {
+        'PortBindings' => { '8081/tcp' => [{ 'HostPort' => '8081' }] }
+      },
+      'VolumesFrom' => ['lita_nexus_data']
+    )
+    @container_nexus.rename('lita_nexus')
+    @container_nexus.start
+
+    # waiting container to startup
+    wait_time = ENV['LITA_NEXUS_WAIT_TIME'] || 20
+    sleep wait_time
+  end
+
+
+ after :all do
+   puts "Shutting down containers"
+   @container_nexus.stop
+   @container_nexus.delete(:force => true)
+   sleep 1
+   @container_data.delete(:force => true)
+ end
+
   before do
-    registry.config.handlers.nexus.url = 'https://nexus.prod.co.entpub.net/nexus/'
-    registry.config.handlers.nexus.username = 'dwang_sa'
+    registry.config.handlers.nexus.url = 'http://localhost:8081/'
+    registry.config.handlers.nexus.username = 'admin'
     registry.config.handlers.nexus.password_hash =
-     'Zrt3Hwo7Er4nu9Ne4r0Y6ykuxwxlmvKTrEN26G7EYw63Wtnt9K4H9e933NEZ
-      eaqUhjoXKYCylhZNWsSj/KDnrEflCCr4eHkFq3kwNi9fRraI3kWVoBzg0v2E
-      jn5sVCVgrIKG3W8p+RGKbm+HEnkNSZRKJumqJy3vtPcbgMdSlWZQPpwNP4X2
-      c4NnOUNVY3nmEijX1FJkGnfL3pcZlJgx60lLhhLbGnKQkLz5LdeFRbiiXaVw
-      acFQufgrhNN85AsKaUlDp/n8ISuMB1K1nGVdN2ZYByf1aKVYwnIWdj+omffz
-      Da2gZuDpdDWvNfYsm7o3JV6BcmsS9YgiaeiBNi0l1Q=='
+     'C3Enajd6ygmzot1CB8H7FdYb7oLOpOr+fZMisp4HDfb8l1YDaNRxUhCYKxYq
+      ma3qv6fxmU3wkPLfcN1c/u164jgGVPPl4mi8PtZxbN2uAh0hm/sIqTAoFczy
+      6lctLPNNYb3eK+4lH/XvOHeS1L+uSwPIiQNub//IsE7MeWz3gW6AXr0I5sUt
+      k81o63GwYqdT0VS4PpJqfl2zq8LHd6s0SFUfZv02HvW0TvwNxmjiWnsRYLcs
+      aU9B+umfH9rCqNXNqDaAgEDXBTbMkqTjwQvRi0qMouQmITPC7dnC2lYsC/Ka
+      HXpfWKIFjbVtf5Tslfj1l5/9mW7PTtwyeXc7z50iUA=='
     registry.config.handlers.nexus.verify_ssl = false
-    registry.config.handlers.nexus.default_repository = 'entertainment'
+    registry.config.handlers.nexus.default_repository = 'releases'
     registry.config.handlers.nexus.rsa_private_key = "#{File.expand_path('~')}/.ssh/id_rsa"
   end
   it do
@@ -64,7 +110,7 @@ describe Lita::Handlers::Nexus, lita_handler: true do
       puts replies
     end
     it 'set current repo ' do
-      send_command('nexus set current repo releases')
+      send_command('nexus set current repo snapshots')
       puts "Setting current repo"
       puts replies
     end
