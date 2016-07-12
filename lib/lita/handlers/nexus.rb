@@ -1,3 +1,5 @@
+require 'nokogiri'
+
 module Lita
   module Handlers
     class Nexus < Handler
@@ -93,7 +95,17 @@ module Lita
         coordinate = response.matches[0][0]
         puts "coordinate  = #{coordinate}"
         info = search_for_artifact(coordinate)
-        response.reply info
+        # now parsing xml result
+        dom = Nokogiri::XML(info)do |config|
+          config.strict.nonet
+        end
+        total_count = dom.xpath('//totalCount').text
+        response.reply "Artifact found: " + total_count
+        data = dom.xpath('//artifact')
+        data.each do |artifact|
+          #response.reply data.to_s.gsub('\\n', '\n')
+          response.reply data.to_xml(:indent => 2)
+        end
       end
 
       def cmd_license_info(response)
@@ -131,6 +143,9 @@ module Lita
 
       end
 
+      def cmd_push_artifact(coordinate, file_path)
+         push_artifact(coordinate, file_path)
+      end
       Lita.register_handler(self)
     end
   end

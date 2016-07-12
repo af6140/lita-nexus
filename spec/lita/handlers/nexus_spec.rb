@@ -2,11 +2,8 @@ require "spec_helper"
 require 'docker'
 
 describe Lita::Handlers::Nexus, lita_handler: true do
-
   before :all do
     @image = Docker::Image.create('fromImage' => 'sonatype/nexus:oss')
-
-
     #
     @container_data =  Docker::Container.create( 'Image' => 'sonatype/nexus:oss',
       'Cmd' => "true"
@@ -36,6 +33,27 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     # waiting container to startup
     wait_time = ENV['LITA_NEXUS_WAIT_TIME'] || 20
     sleep wait_time
+
+
+
+    #now upload test artifact to server
+    test_jar = File.expand_path("../../../fixtures/file/maven-reporting-api-2.0.9.jar", __FILE__)
+    #puts robot.handlers.to_a[0].class
+    overrides = {
+      :url => 'http://localhost:8081',
+      :repository => 'releases',
+      :username => 'admin',
+      :password => 'admin123'
+    }
+    nexus_remote ||= NexusCli::RemoteFactory.create(overrides, false)
+
+    puts "Upload testing artifact: #{test_jar}"
+    success =  nexus_remote.push_artifact('org.apache.maven.reporting:maven-reporting:jar:2.0.9', test_jar)
+
+    unless success
+      raise "Failed to upload test artifact"
+    end
+
   end
 
 
@@ -61,6 +79,7 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     registry.config.handlers.nexus.verify_ssl = false
     registry.config.handlers.nexus.default_repository = 'releases'
     registry.config.handlers.nexus.rsa_private_key = "#{File.expand_path('~')}/.ssh/id_rsa"
+
   end
   it do
     is_expected.to route_command('nexus artifact info webapps:sweetrewards:tar.gz:1.8.0').to(:cmd_artifact_info)
@@ -72,15 +91,16 @@ describe Lita::Handlers::Nexus, lita_handler: true do
   end
 
   describe '#get artifact info' do
+    #let(:robot) { Lita::Robot.new(registry) }
     it 'fecth artifact info' do
-      send_command('nexus artifact info webapps:sweetrewards:tar.gz:1.8.0')
+      send_command('nexus artifact info org.apache.maven.reporting:maven-reporting:jar:2.0.9')
       puts replies
     end
   end
 
   describe '#search artifact info' do
     it 'search artifact' do
-      send_command('nexus search artifact webapps:sweetrewards')
+      send_command('nexus search artifact org.apache.maven.reporting:maven-reporting')
       puts replies
     end
   end

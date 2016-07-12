@@ -1,4 +1,8 @@
 # Change Log
+## 0.1.4
+* Use test artifact in docker container
+* Split search artifact result into multiple messages.
+
 ## 0.1.3
 * Allow use plain password.
 * Use docker container for testing.

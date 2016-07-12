@@ -73,5 +73,15 @@ module LitaNexusHelper
     def get_current_repo
       config.current_repository || config.default_repository
     end
+
+    def push_artifact(coordinate, file_path)
+      remote = nexus_remote
+      begin
+        #boolean result
+        success = remote.push_artifact(coordinate, file_path)
+      rescue Exception => e
+        raise "Failed to push artifact, #{e.message}"
+      end
+    end
   end#module Remote
 end #module helper
