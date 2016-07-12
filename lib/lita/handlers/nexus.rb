@@ -104,7 +104,7 @@ module Lita
         data = dom.xpath('//artifact')
         data.each do |artifact|
           #response.reply data.to_s.gsub('\\n', '\n')
-          response.reply data.to_xml(:indent => 2)
+          response.reply artifact.to_xml(:indent => 2)
         end
       end
 

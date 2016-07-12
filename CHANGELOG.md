@@ -1,4 +1,8 @@
 # Change Log
+
+## 0.1.5
+* Fixing search result output
+
 ## 0.1.4
 * Use test artifact in docker container
 * Split search artifact result into multiple messages.
