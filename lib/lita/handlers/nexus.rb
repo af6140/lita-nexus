@@ -33,7 +33,7 @@ module Lita
       )
 
       route(
-        /^nexus\s+search\s+artifact\s+([\S:]+)(?>\s+limit\s+)?(\d+)\s*$/,
+        /^nexus\s+search\s+artifact\s+([\S:]+)(?>\s+limit\s+)?(\d+)?\s*$/,
         :cmd_search_artifact,
         command: true,
         help: {
@@ -119,12 +119,16 @@ module Lita
           all_versions = {}
           data.each do |artifact|
             version_str= artifact.xpath('version').text
-            puts "setting key = #{version_str}"
-            puts "setting content = #{artifact.to_xml}"
-            all_versions[version_str]= artifact.to_xml(:indent =>2)
+            artifact_output = StringIO.open do |s|
+              s.puts "[Coordinate] #{artifact.xpath('groupId').text}:#{artifact.xpath('artifactId').text}:#{artifact.xpath('version').text}:#{artifact.xpath('packaging').text}"
+              s.puts "[Download URL] #{artifact.xpath('resourceURI').text}"
+              s.puts "[Repository] #{artifact.xpath('repoId').text}(#{artifact.xpath('contextId').text})"
+              s.string
+            end
+            all_versions[version_str]= artifact_output
           end
 
-          response.reply "Artifact found:  #{all_versions.size} show max number of latest version:  #{return_limit}"
+          response.reply "Artifact found: #{all_versions.size}, showing max #{return_limit||config.search_limit} of latest version"
           out_artifacts = []
           unless all_versions.empty?
             all_versions.sort_by {|k,v|
@@ -170,7 +174,7 @@ module Lita
         if repo && repo.strip.length >0
           config.current_repository = repo
         end
-        response.reply "Current repository is changed to #{repo}."
+        response.reply "Success: current repository is changed to #{repo}."
       end
 
       def cmd_show_current_repository(response)

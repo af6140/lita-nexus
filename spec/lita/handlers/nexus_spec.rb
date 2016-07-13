@@ -95,58 +95,65 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     #let(:robot) { Lita::Robot.new(registry) }
     it 'fecth artifact info' do
       send_command('nexus artifact info org.apache.maven.reporting:maven-reporting:jar:2.0.9')
-      puts replies
+      expect(replies.last).to match(/repositoryPath/)
     end
   end
 
   describe '#search artifact info' do
     it 'search artifact' do
       send_command('nexus search artifact org.apache.maven.reporting:maven-reporting limit 5')
-      puts replies
+      expect(replies.first).to match(/Artifact found: 1/)
+      expect(replies.last).to match(/org.apache.maven.reporting:maven-reporting:2.0.9:jar/)
+    end
+    it 'search artifact with default limit' do
+      send_command('nexus search artifact org.apache.maven.reporting:maven-reporting')
+      expect(replies.first).to match(/Artifact found: 1/)
+      expect(replies.last).to match(/org.apache.maven.reporting:maven-reporting:2.0.9:jar/)
     end
   end
 
   describe '#get license info' do
     it 'fecth server license info' do
       send_command('nexus license info')
-      puts replies
+      expect(replies.last).to match(/professional version/)
     end
   end
 
   describe '#get repo info' do
     it 'fecth repository info' do
       send_command('nexus repo info snapshots')
-      puts replies
+      expect(replies.last).to match(/<id>snapshots/)
 
     end
     it 'show repository not found' do
       send_command('nexus repo info notexist')
-      puts replies
+      expect(replies.last).to match(/not found/)
     end
   end
 
   describe '#show and set current repo' do
     it 'get current repo' do
       send_command('nexus show current repo')
-      puts "Getting current repo"
-      puts replies
+      #puts replies
+      expect(replies.last).to match(/releases/)
     end
     it 'set current repo ' do
       send_command('nexus set current repo snapshots')
-      puts "Setting current repo"
-      puts replies
+      expect(replies.last).to match(/Success/)
     end
     it 'get current repo' do
       send_command('nexus show current repo')
       puts "Getting current repo, changed"
-      puts replies
+      #puts replies
+      expect(replies.last).to match(/snapshots/)
     end
   end
 
   describe '#get artifact versions' do
     it 'get artifact versions' do
       send_command('nexus get artifact versions org.apache.maven.reporting:maven-reporting')
-      puts replies
+      #puts replies
+      expect(replies.last).to match(/[0-9.]+/)
     end
   end
 end
