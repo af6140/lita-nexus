@@ -97,7 +97,6 @@ module Lita
 
       def cmd_artifact_info(response)
         coordinate = response.matches[0][0]
-        puts "coordinate  = #{coordinate}"
         info = get_artifact_info(coordinate)
         response.reply info
       end
@@ -109,7 +108,6 @@ module Lita
         if !limit.nil? && ! limit.empty?
           return_limit = Integer(limit)
         end
-        puts "return_limit: #{return_limit}"
         begin
           info = search_for_artifact(coordinate)
           # now parsing xml result
@@ -117,28 +115,27 @@ module Lita
             config.strict.nonet
           end
           total_count = dom.xpath('//totalCount').text
-
           data = dom.xpath('//artifact')
           all_versions = {}
           data.each do |artifact|
-            #response.reply data.to_s.gsub('\\n', '\n')
-            version_strs= artifact.xpath('//version')
-            version_strs.each do |version_str|
-              all_versions[version_str.text]= artifact.to_xml(:indent =>2)
-            end
+            version_str= artifact.xpath('version').text
+            puts "setting key = #{version_str}"
+            puts "setting content = #{artifact.to_xml}"
+            all_versions[version_str]= artifact.to_xml(:indent =>2)
           end
-          response.reply "Artifact found:  #{all_versions.size}"
+
+          response.reply "Artifact found:  #{all_versions.size} show max number of latest version:  #{return_limit}"
           out_artifacts = []
           unless all_versions.empty?
             all_versions.sort_by {|k,v|
-              puts "parsing version #{k}"
               Versionomy.parse(k)
             }
             tmp_artifacts = all_versions.values.reverse
             out_artifacts = tmp_artifacts.first(return_limit||config.search_limit)
           end
-          index = 1
+          index = 0
           out_artifacts.each do |artifact|
+            index = index +1
             response.reply "Artifact #{index}:"
             response.reply artifact
           end
