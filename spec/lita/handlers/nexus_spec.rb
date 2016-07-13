@@ -37,7 +37,8 @@ describe Lita::Handlers::Nexus, lita_handler: true do
 
 
     #now upload test artifact to server
-    test_jar = File.expand_path("../../../fixtures/file/maven-reporting-api-2.0.9.jar", __FILE__)
+    test_jar1 = File.expand_path("../../../fixtures/file/maven-reporting-api-2.0.9.jar", __FILE__)
+    test_jar2 = File.expand_path("../../../fixtures/file/maven-reporting-api-2.0.6.jar", __FILE__)
     #puts robot.handlers.to_a[0].class
     overrides = {
       :url => 'http://localhost:8081',
@@ -47,9 +48,13 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     }
     nexus_remote ||= NexusCli::RemoteFactory.create(overrides, false)
 
-    puts "Upload testing artifact: #{test_jar}"
-    success =  nexus_remote.push_artifact('org.apache.maven.reporting:maven-reporting:jar:2.0.9', test_jar)
-
+    puts "Upload testing artifact: #{test_jar1}"
+    success =  nexus_remote.push_artifact('org.apache.maven.reporting:maven-reporting:jar:2.0.9', test_jar1)
+    unless success
+      raise "Failed to upload test artifact"
+    end
+    puts "Upload testing artifact: #{test_jar2}"
+    success =  nexus_remote.push_artifact('org.apache.maven.reporting:maven-reporting:jar:2.0.6', test_jar2)
     unless success
       raise "Failed to upload test artifact"
     end
@@ -93,34 +98,34 @@ describe Lita::Handlers::Nexus, lita_handler: true do
 
   describe '#get artifact info' do
     #let(:robot) { Lita::Robot.new(registry) }
-    it 'fecth artifact info' do
+    it 'fecth artifact info should return info' do
       send_command('nexus artifact info org.apache.maven.reporting:maven-reporting:jar:2.0.9')
       expect(replies.last).to match(/repositoryPath/)
     end
   end
 
   describe '#search artifact info' do
-    it 'search artifact' do
+    it 'search artifact should return artifact' do
       send_command('nexus search artifact org.apache.maven.reporting:maven-reporting limit 5')
-      expect(replies.first).to match(/Artifact found: 1/)
-      expect(replies.last).to match(/org.apache.maven.reporting:maven-reporting:2.0.9:jar/)
+      expect(replies.first).to match(/Artifact found: [0-9]+/)
+      expect(replies.last).to match(/org.apache.maven.reporting:maven-reporting/)
     end
-    it 'search artifact with default limit' do
+    it 'search artifact with default limit should return artifact' do
       send_command('nexus search artifact org.apache.maven.reporting:maven-reporting')
-      expect(replies.first).to match(/Artifact found: 1/)
-      expect(replies.last).to match(/org.apache.maven.reporting:maven-reporting:2.0.9:jar/)
+      expect(replies.first).to match(/Artifact found: [0-9]+/)
+      expect(replies.last).to match(/org.apache.maven.reporting:maven-reporting/)
     end
   end
 
   describe '#get license info' do
-    it 'fecth server license info' do
+    it 'fecth server license info should show message with "professional version"' do
       send_command('nexus license info')
       expect(replies.last).to match(/professional version/)
     end
   end
 
   describe '#get repo info' do
-    it 'fecth repository info' do
+    it 'fecth repository info should show snapshots' do
       send_command('nexus repo info snapshots')
       expect(replies.last).to match(/<id>snapshots/)
 
@@ -132,28 +137,27 @@ describe Lita::Handlers::Nexus, lita_handler: true do
   end
 
   describe '#show and set current repo' do
-    it 'get current repo' do
+    it 'get current repo should show as releases' do
       send_command('nexus show current repo')
       #puts replies
       expect(replies.last).to match(/releases/)
     end
-    it 'set current repo ' do
+    it 'set current repo with success ' do
       send_command('nexus set current repo snapshots')
       expect(replies.last).to match(/Success/)
     end
-    it 'get current repo' do
+    it 'get current repo shoud show as snapshots' do
       send_command('nexus show current repo')
-      puts "Getting current repo, changed"
       #puts replies
       expect(replies.last).to match(/snapshots/)
     end
   end
 
   describe '#get artifact versions' do
-    it 'get artifact versions' do
+    it 'get artifact versions should show both versions' do
       send_command('nexus get artifact versions org.apache.maven.reporting:maven-reporting')
-      #puts replies
-      expect(replies.last).to match(/[0-9.]+/)
+      expect(replies.last).to include('2.0.6')
+      expect(replies.last).to include('2.0.9')
     end
   end
 end
