@@ -201,7 +201,7 @@ module Lita
           data.each do |version|
             versions << version.text
           end
-          versions.sort {|x,y|
+          versions.sort! {|x,y|
             Versionomy.parse(x) <=> Versionomy.parse(y)
           }
           response.reply versions.to_s
