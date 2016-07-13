@@ -33,7 +33,7 @@ module LitaNexusHelper
       begin
         info = remote.get_artifact_info(coordinate)
       rescue NexusCli::ArtifactNotFoundException => e
-        info = "Artifact not found"
+        info = t('msg.info_artifact_not_found')
       end
       #puts "info: #{info}"
       info
@@ -55,7 +55,8 @@ module LitaNexusHelper
       if remote.respond_to? 'get_license_info'
         remote.get_license_info
       else
-        'Only supported on professional version.'
+        #'Only supported on professional version.'
+        t('msg.info_only_supported_on_pro_version')
       end
     end
 
@@ -65,9 +66,8 @@ module LitaNexusHelper
       begin
         info = remote.get_repository_info(coordinate)
       rescue NexusCli::RepositoryNotFoundException => e
-        info = "Repository not found"
+        info = t('msg.info_repository_not_found')
       end
-      #puts "info: #{info}"
       info
     end
 

@@ -19,3 +19,10 @@ en:
           cmd_set_repo_value: 'Set current repository to specified REPO'
           cmd_get_artifact_versions_key: 'nexus get artifact versions G:A'
           cmd_get_artifact_versions_value: 'Get all versions of artifact with groupId and artifacId'
+        msg:
+          info_repository_not_found: 'Specified repository not found.'
+          info_only_supported_on_pro_version: 'Feature only supported on professional version.'
+          info_artifact_deleted: 'Artifact is deleted successfully.'
+          info_current_repo_is: 'Current repository is %{repo}.'
+          info_repos_set_success: 'Success: current repository is changed to %{repo}.'
+          info_artifact_not_found: 'Artifact cannot be found.'

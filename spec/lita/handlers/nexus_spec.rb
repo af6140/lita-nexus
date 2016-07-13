@@ -1,73 +1,78 @@
 require "spec_helper"
 require 'docker'
+require 'i18n'
 
 describe Lita::Handlers::Nexus, lita_handler: true do
   before :all do
-    @image = Docker::Image.create('fromImage' => 'sonatype/nexus:oss')
-    #
-    @container_data =  Docker::Container.create( 'Image' => 'sonatype/nexus:oss',
-      'Cmd' => "true"
-    )
-    @container_data.rename('lita_nexus_data')
-    @container_data.start
+    if ENV['LITA_provision'] != 'no'
+      @image = Docker::Image.create('fromImage' => 'sonatype/nexus:oss')
+      #
+      @container_data =  Docker::Container.create( 'Image' => 'sonatype/nexus:oss',
+        'Cmd' => "true"
+      )
+      @container_data.rename('lita_nexus_data')
+      @container_data.start
 
-    sleep 5
+      sleep 5
 
-      #check docker image documentation
-    default_settings =[
-      'MAX_HEAP=768m'
-    ]
-    @container_nexus = Docker::Container.create( 'Image' => 'sonatype/nexus:oss',
-      'Env'=> default_settings,
-      'ExposedPorts' => {
-        '8081/tcp' => {}
-      },
-      'HostConfig' => {
-        'PortBindings' => { '8081/tcp' => [{ 'HostPort' => '8081' }] }
-      },
-      'VolumesFrom' => ['lita_nexus_data']
-    )
-    @container_nexus.rename('lita_nexus')
-    @container_nexus.start
+        #check docker image documentation
+      default_settings =[
+        'MAX_HEAP=768m'
+      ]
+      @container_nexus = Docker::Container.create( 'Image' => 'sonatype/nexus:oss',
+        'Env'=> default_settings,
+        'ExposedPorts' => {
+          '8081/tcp' => {}
+        },
+        'HostConfig' => {
+          'PortBindings' => { '8081/tcp' => [{ 'HostPort' => '8081' }] }
+        },
+        'VolumesFrom' => ['lita_nexus_data']
+      )
+      @container_nexus.rename('lita_nexus')
+      @container_nexus.start
 
-    # waiting container to startup
-    wait_time = ENV['LITA_NEXUS_WAIT_TIME'] || 20
-    sleep wait_time
+      # waiting container to startup
+      wait_time = ENV['LITA_NEXUS_WAIT_TIME'] || 20
+      sleep wait_time
 
 
 
-    #now upload test artifact to server
-    test_jar1 = File.expand_path("../../../fixtures/file/maven-reporting-api-2.0.9.jar", __FILE__)
-    test_jar2 = File.expand_path("../../../fixtures/file/maven-reporting-api-2.0.6.jar", __FILE__)
-    #puts robot.handlers.to_a[0].class
-    overrides = {
-      :url => 'http://localhost:8081',
-      :repository => 'releases',
-      :username => 'admin',
-      :password => 'admin123'
-    }
-    nexus_remote ||= NexusCli::RemoteFactory.create(overrides, false)
+      #now upload test artifact to server
+      test_jar1 = File.expand_path("../../../fixtures/file/maven-reporting-api-2.0.9.jar", __FILE__)
+      test_jar2 = File.expand_path("../../../fixtures/file/maven-reporting-api-2.0.6.jar", __FILE__)
+      #puts robot.handlers.to_a[0].class
+      overrides = {
+        :url => 'http://localhost:8081',
+        :repository => 'releases',
+        :username => 'admin',
+        :password => 'admin123'
+      }
+      nexus_remote ||= NexusCli::RemoteFactory.create(overrides, false)
 
-    puts "Upload testing artifact: #{test_jar1}"
-    success =  nexus_remote.push_artifact('org.apache.maven.reporting:maven-reporting:jar:2.0.9', test_jar1)
-    unless success
-      raise "Failed to upload test artifact"
-    end
-    puts "Upload testing artifact: #{test_jar2}"
-    success =  nexus_remote.push_artifact('org.apache.maven.reporting:maven-reporting:jar:2.0.6', test_jar2)
-    unless success
-      raise "Failed to upload test artifact"
-    end
+      puts "Upload testing artifact: #{test_jar1}"
+      success =  nexus_remote.push_artifact('org.apache.maven.reporting:maven-reporting:jar:2.0.9', test_jar1)
+      unless success
+        raise "Failed to upload test artifact"
+      end
+      puts "Upload testing artifact: #{test_jar2}"
+      success =  nexus_remote.push_artifact('org.apache.maven.reporting:maven-reporting:jar:2.0.6', test_jar2)
+      unless success
+        raise "Failed to upload test artifact"
+      end
+    end #if
 
   end
 
 
  after :all do
-   puts "Shutting down containers"
-   @container_nexus.stop
-   @container_nexus.delete(:force => true)
-   sleep 1
-   @container_data.delete(:force => true)
+   if ENV['LITA_destroy'] != 'no'
+     puts "Shutting down containers"
+     @container_nexus.stop
+     @container_nexus.delete(:force => true)
+     sleep 1
+     @container_data.delete(:force => true)
+   end
  end
 
   before do
@@ -102,6 +107,11 @@ describe Lita::Handlers::Nexus, lita_handler: true do
       send_command('nexus artifact info org.apache.maven.reporting:maven-reporting:jar:2.0.9')
       expect(replies.last).to match(/repositoryPath/)
     end
+
+    it 'return not found for non-existing' do
+      send_command('nexus artifact info webapps:maven-reporting:jar:2.0.9')
+      expect(replies.last).to eq(I18n.t('lita.handlers.nexus.msg.info_artifact_not_found'))
+    end
   end
 
   describe '#search artifact info' do
@@ -118,9 +128,9 @@ describe Lita::Handlers::Nexus, lita_handler: true do
   end
 
   describe '#get license info' do
-    it 'fecth server license info should show message with "professional version"' do
+    it 'fecth server license info should show feature only available in pro version' do
       send_command('nexus license info')
-      expect(replies.last).to match(/professional version/)
+      expect(replies.last).to eq(I18n.t('lita.handlers.nexus.msg.info_only_supported_on_pro_version'))
     end
   end
 
@@ -128,11 +138,10 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     it 'fecth repository info should show snapshots' do
       send_command('nexus repo info snapshots')
       expect(replies.last).to match(/<id>snapshots/)
-
     end
     it 'show repository not found' do
       send_command('nexus repo info notexist')
-      expect(replies.last).to match(/not found/)
+      expect(replies.last).to eq(I18n.t('lita.handlers.nexus.msg.info_repository_not_found'))
     end
   end
 
@@ -140,16 +149,18 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     it 'get current repo should show as releases' do
       send_command('nexus show current repo')
       #puts replies
-      expect(replies.last).to match(/releases/)
+      #expect(replies.last).to match(/releases/)
+      expect(replies.last).to eq(I18n.t('lita.handlers.nexus.msg.info_current_repo_is', repo: 'releases'))
     end
     it 'set current repo with success ' do
       send_command('nexus set current repo snapshots')
-      expect(replies.last).to match(/Success/)
+      #expect(replies.last).to match(/Success/)
+      expect(replies.last).to eq(I18n.t('lita.handlers.nexus.msg.info_repos_set_success', repo: 'snapshots'))
     end
     it 'get current repo shoud show as snapshots' do
       send_command('nexus show current repo')
       #puts replies
-      expect(replies.last).to match(/snapshots/)
+      expect(replies.last).to eq(I18n.t('lita.handlers.nexus.msg.info_current_repo_is', repo: 'snapshots'))
     end
   end
 
@@ -158,6 +169,8 @@ describe Lita::Handlers::Nexus, lita_handler: true do
       send_command('nexus get artifact versions org.apache.maven.reporting:maven-reporting')
       expect(replies.last).to include('2.0.6')
       expect(replies.last).to include('2.0.9')
+
+      puts I18n.t('lita.handlers.nexus.msg.info_repository_not_found')
     end
   end
 end

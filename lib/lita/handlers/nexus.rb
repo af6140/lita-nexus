@@ -163,7 +163,8 @@ module Lita
         coordinate = response.matches[0][0]
         begin
           delete_artifact(coordinate)
-          response.reply "Artifact deleted successfully."
+          #response.reply "Artifact deleted successfully."
+          response.reply t('msg.info_artifact_deleted')
         rescue Exception => e
           response.reply e.message
         end
@@ -174,13 +175,14 @@ module Lita
         if repo && repo.strip.length >0
           config.current_repository = repo
         end
-        response.reply "Success: current repository is changed to #{repo}."
+        #response.reply "Success: current repository is changed to #{repo}."
+        response.reply t('msg.info_repos_set_success', repo: repo)
       end
 
       def cmd_show_current_repository(response)
         current_repo = get_current_repo
-        response.reply "Current repository is #{current_repo}"
-
+        #response.reply "Current repository is #{current_repo}"
+        response.reply t('msg.info_current_repo_is', repo: current_repo)
       end
 
       def cmd_push_artifact(coordinate, file_path)
