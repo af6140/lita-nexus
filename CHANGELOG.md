@@ -1,5 +1,7 @@
 # Change Log
 
+## 0.1.6
+* Show latest artifact versions
 ## 0.1.5
 * Fixing search result output
 

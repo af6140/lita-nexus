@@ -1,4 +1,6 @@
 require 'nokogiri'
+require 'versionomy'
+
 
 module Lita
   module Handlers
@@ -16,6 +18,7 @@ module Lita
       config :verify_ssl, required: false, type: [TrueClass,FalseClass], default: false
       config :rsa_private_key, required: true, type: String
       config :current_repository, required: false, type: String
+      config :search_limit, required: false, type: Integer, default: 5
 
 
       include ::LitaNexusHelper::Remote
@@ -30,7 +33,7 @@ module Lita
       )
 
       route(
-        /^nexus\s+search\s+artifact\s+(\S+)\s*$/,
+        /^nexus\s+search\s+artifact\s+([\S:]+)(?>\s+limit\s+)?(\d+)\s*$/,
         :cmd_search_artifact,
         command: true,
         help: {
@@ -83,6 +86,14 @@ module Lita
         }
       )
 
+      route(
+        /^nexus\s+get\s+artifact\s+versions\s+(\S+)\s*$/,
+        :cmd_get_artifact_versions,
+        command: true,
+        help: {
+          t('help.cmd_get_artifact_versions_key') => t('help.cmd_get_artifact_versions_value')
+        }
+      )
 
       def cmd_artifact_info(response)
         coordinate = response.matches[0][0]
@@ -93,18 +104,46 @@ module Lita
 
       def cmd_search_artifact(response)
         coordinate = response.matches[0][0]
-        puts "coordinate  = #{coordinate}"
-        info = search_for_artifact(coordinate)
-        # now parsing xml result
-        dom = Nokogiri::XML(info)do |config|
-          config.strict.nonet
+        limit = response.matches[0][1]
+        return_limit  = nil
+        if !limit.nil? && ! limit.empty?
+          return_limit = Integer(limit)
         end
-        total_count = dom.xpath('//totalCount').text
-        response.reply "Artifact found: " + total_count
-        data = dom.xpath('//artifact')
-        data.each do |artifact|
-          #response.reply data.to_s.gsub('\\n', '\n')
-          response.reply artifact.to_xml(:indent => 2)
+        puts "return_limit: #{return_limit}"
+        begin
+          info = search_for_artifact(coordinate)
+          # now parsing xml result
+          dom = Nokogiri::XML(info)do |config|
+            config.strict.nonet
+          end
+          total_count = dom.xpath('//totalCount').text
+
+          data = dom.xpath('//artifact')
+          all_versions = {}
+          data.each do |artifact|
+            #response.reply data.to_s.gsub('\\n', '\n')
+            version_strs= artifact.xpath('//version')
+            version_strs.each do |version_str|
+              all_versions[version_str.text]= artifact.to_xml(:indent =>2)
+            end
+          end
+          response.reply "Artifact found:  #{all_versions.size}"
+          out_artifacts = []
+          unless all_versions.empty?
+            all_versions.sort_by {|k,v|
+              puts "parsing version #{k}"
+              Versionomy.parse(k)
+            }
+            tmp_artifacts = all_versions.values.reverse
+            out_artifacts = tmp_artifacts.first(return_limit||config.search_limit)
+          end
+          index = 1
+          out_artifacts.each do |artifact|
+            response.reply "Artifact #{index}:"
+            response.reply artifact
+          end
+        rescue Exception =>e
+          response.reply e.message
         end
       end
 
@@ -145,6 +184,27 @@ module Lita
 
       def cmd_push_artifact(coordinate, file_path)
          push_artifact(coordinate, file_path)
+      end
+
+      def cmd_get_artifact_versions(response)
+        coordinate = response.matches[0][0]
+        begin
+          info = search_for_artifact(coordinate)
+          # now parsing xml result
+          dom = Nokogiri::XML(info)do |config|
+            config.strict.nonet
+          end
+
+          data = dom.xpath('//artifact/version')
+          versions =[]
+          data.each do |version|
+            versions << version
+          end
+          response.reply versions.join('\n')
+        rescue Exception =>e
+          response.reply e.message
+        end
+
       end
       Lita.register_handler(self)
     end

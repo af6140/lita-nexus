@@ -17,3 +17,5 @@ en:
           cmd_show_repo_value: 'Show current repository used'
           cmd_set_repo_key: 'nexus set current repo REPO'
           cmd_set_repo_value: 'Set current repository to specified REPO'
+          cmd_get_artifact_versions_key: 'nexus get artifact versions G:A'
+          cmd_get_artifact_versions_value: 'Get all versions of artifact with groupId and artifacId'

@@ -88,6 +88,7 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     is_expected.to route_command('nexus delete artifact webapps:sweetrewards:tar.gz:1.8.0').to(:cmd_delete_artifact)
     is_expected.to route_command('nexus show current repo').to(:cmd_show_current_repository)
     is_expected.to route_command('nexus set current repo releases').to(:cmd_set_current_repository)
+    is_expected.to route_command('nexus search artifact org.apache.maven.reporting:maven-reporting limit 5').to(:cmd_search_artifact)
   end
 
   describe '#get artifact info' do
@@ -100,7 +101,7 @@ describe Lita::Handlers::Nexus, lita_handler: true do
 
   describe '#search artifact info' do
     it 'search artifact' do
-      send_command('nexus search artifact org.apache.maven.reporting:maven-reporting')
+      send_command('nexus search artifact org.apache.maven.reporting:maven-reporting limit 5')
       puts replies
     end
   end
@@ -138,6 +139,13 @@ describe Lita::Handlers::Nexus, lita_handler: true do
     it 'get current repo' do
       send_command('nexus show current repo')
       puts "Getting current repo, changed"
+      puts replies
+    end
+  end
+
+  describe '#get artifact versions' do
+    it 'get artifact versions' do
+      send_command('nexus get artifact versions org.apache.maven.reporting:maven-reporting')
       puts replies
     end
   end

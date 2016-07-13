@@ -37,8 +37,9 @@ end
 
 * nexus artifact info webapps:sweetrewards:tar.gz:1.8.0
 * nexus delete artifact webapps:sweetrewards:tar.gz:1.8.0
-* nexus search artifact webapps:sweetrewards
+* nexus search artifact webapps:sweetrewards [limit 5]# only groupId and artifacId are effective, default return 5 latest version
 * nexus license info # only for pro version
 * nexus repo info snapshots
 * nexus show current repo
 * nexus set current repo releases
+* nexus get artifact versions webapps:sweetrewards # use groupId and artifactId, limit to latest 5 versions by default

@@ -40,8 +40,14 @@ module LitaNexusHelper
     end
 
     def search_for_artifact(coordinate)
-      remote = nexus_remote
-      info = remote.search_for_artifacts(coordinate)
+      begin
+        remote = nexus_remote
+        nexus = remote.nexus
+        #puts nexus.inspect
+        info = remote.search_for_artifacts(coordinate)
+      rescue Exception => e
+        raise "Failed to search: #{e.message}"
+      end
     end
 
     def get_license_info
@@ -83,5 +89,21 @@ module LitaNexusHelper
         raise "Failed to push artifact, #{e.message}"
       end
     end
+
+    def search_with_lucene(coordinate)
+      remote = nexus_remote
+      nexus = remote.nexus
+      artifact = NexusCli::Artifact.new(coordinate)
+      query = {:g => artifact.group_id, :a => artifact.artifact_id, :e => artifact.extension, :v => artifact.version, :r => get_current_repo}
+      query.merge!({:c => artifact.classifier}) unless artifact.classifier.nil?
+      response = nexus.get(remote.nexus_url("service/local/lucene/search"), query)
+      case response.status
+        when 200
+          return response.content
+        else
+          raise UnexpectedStatusCodeException.new(response.status)
+      end
+    end
+
   end#module Remote
 end #module helper
