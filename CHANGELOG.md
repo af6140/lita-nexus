@@ -1,7 +1,9 @@
 # Change Log
 
 ## 0.1.6
-* Show latest artifact versions
+* Show artifact versions
+* Search artifact now by default only show 5 latest version, configuration limit. Show text other than xml result.
+
 ## 0.1.5
 * Fixing search result output
 

@@ -199,9 +199,12 @@ module Lita
           data = dom.xpath('//artifact/version')
           versions =[]
           data.each do |version|
-            versions << version
+            versions << version.text
           end
-          response.reply versions.join('\n')
+          versions.sort {|x,y|
+            Versionomy.parse(x) <=> Versionomy.parse(y)
+          }
+          response.reply versions.to_s
         rescue Exception =>e
           response.reply e.message
         end
