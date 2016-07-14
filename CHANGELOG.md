@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.7
+* externalize messages
+* allow reuse docker container reuse during development testing, through environment variables.
+
 ## 0.1.6
 * Show artifact versions
 * Search artifact now by default only show 5 latest version, configuration limit. Show text other than xml result.
