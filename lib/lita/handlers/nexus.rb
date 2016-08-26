@@ -19,6 +19,7 @@ module Lita
       config :rsa_private_key, required: true, type: String
       config :current_repository, required: false, type: String
       config :search_limit, required: false, type: Integer, default: 5
+      #config :nexus_admins_groupo, required: false, types: [Symbol, String, Array<String,Symbol>], default: :nexus_admins
 
 
       include ::LitaNexusHelper::Remote

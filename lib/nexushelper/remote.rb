@@ -22,8 +22,7 @@ module LitaNexusHelper
         }
         nexus_remote ||= NexusCli::RemoteFactory.create(overrides, config.verify_ssl||false)
       rescue NexusCli::NexusCliError => e
-        say e.message, :red
-        exit e.status_code
+        puts e.message
       end
     end
 

@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.8
+* 0.1.7 is broken
+
 ## 0.1.7
 * externalize messages
 * allow reuse docker container reuse during development testing, through environment variables.

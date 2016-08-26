@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "lita-nexus"
-  spec.version       = "0.1.7"
+  spec.version       = "0.1.8"
   spec.authors       = ["Wang, Dawei"]
   spec.email         = ["dwang@entertainment.com"]
   spec.description   = "Lita Nexus Operations"
